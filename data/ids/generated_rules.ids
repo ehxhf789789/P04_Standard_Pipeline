@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids xmlns="http://standards.buildingsmart.org/IDS"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <info>
+    <title>BIM-to-AI Pipeline Validation Rules</title>
+    <description>Auto-generated IDS rules for common building elements</description>
+  </info>
+  <specifications>
+
+    <!-- IfcWall Requirements -->
+    <specification name="Wall Fire Rating" ifcVersion="IFC4X3">
+      <applicability>
+        <entity>
+          <name>IFCWALL</name>
+        </entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLABEL" minOccurs="1">
+          <propertySet>
+            <simpleValue>Pset_WallCommon</simpleValue>
+          </propertySet>
+          <baseName>
+            <simpleValue>FireRating</simpleValue>
+          </baseName>
+        </property>
+        <property dataType="IFCBOOLEAN" minOccurs="1">
+          <propertySet>
+            <simpleValue>Pset_WallCommon</simpleValue>
+          </propertySet>
+          <baseName>
+            <simpleValue>IsExternal</simpleValue>
+          </baseName>
+        </property>
+        <property dataType="IFCBOOLEAN" minOccurs="1">
+          <propertySet>
+            <simpleValue>Pset_WallCommon</simpleValue>
+          </propertySet>
+          <baseName>
+            <simpleValue>LoadBearing</simpleValue>
+          </baseName>
+        </property>
+      </requirements>
+    </specification>
+
+    <!-- IfcDoor Requirements -->
+    <specification name="Door Properties" ifcVersion="IFC4X3">
+      <applicability>
+        <entity>
+          <name>IFCDOOR</name>
+        </entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLABEL" minOccurs="1">
+          <propertySet>
+            <simpleValue>Pset_DoorCommon</simpleValue>
+          </propertySet>
+          <baseName>
+            <simpleValue>FireRating</simpleValue>
+          </baseName>
+        </property>
+        <property dataType="IFCBOOLEAN" minOccurs="1">
+          <propertySet>
+            <simpleValue>Pset_DoorCommon</simpleValue>
+          </propertySet>
+          <baseName>
+            <simpleValue>IsExternal</simpleValue>
+          </baseName>
+        </property>
+      </requirements>
+    </specification>
+
+    <!-- IfcWindow Requirements -->
+    <specification name="Window Properties" ifcVersion="IFC4X3">
+      <applicability>
+        <entity>
+          <name>IFCWINDOW</name>
+        </entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCTHERMALTRANSMITTANCEMEASURE" minOccurs="1">
+          <propertySet>
+            <simpleValue>Pset_WindowCommon</simpleValue>
+          </propertySet>
+          <baseName>
+            <simpleValue>ThermalTransmittance</simpleValue>
+          </baseName>
+        </property>
+      </requirements>
+    </specification>
+
+    <!-- IfcSlab Requirements -->
+    <specification name="Slab Properties" ifcVersion="IFC4X3">
+      <applicability>
+        <entity>
+          <name>IFCSLAB</name>
+        </entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCBOOLEAN" minOccurs="1">
+          <propertySet>
+            <simpleValue>Pset_SlabCommon</simpleValue>
+          </propertySet>
+          <baseName>
+            <simpleValue>LoadBearing</simpleValue>
+          </baseName>
+        </property>
+      </requirements>
+    </specification>
+
+    <!-- Material Requirement for structural elements -->
+    <specification name="Structural Elements Material" ifcVersion="IFC4X3">
+      <applicability>
+        <entity>
+          <name>IFCBEAM</name>
+        </entity>
+      </applicability>
+      <requirements>
+        <material minOccurs="1"/>
+      </requirements>
+    </specification>
+
+    <specification name="Column Material" ifcVersion="IFC4X3">
+      <applicability>
+        <entity>
+          <name>IFCCOLUMN</name>
+        </entity>
+      </applicability>
+      <requirements>
+        <material minOccurs="1"/>
+      </requirements>
+    </specification>
+
+  </specifications>
+</ids>

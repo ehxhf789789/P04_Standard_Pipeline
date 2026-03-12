@@ -1,0 +1,114 @@
+{
+  "IfcWall": {
+    "uniclass2015": {
+      "code": "Ss_25_10_30",
+      "name": "Wall systems"
+    },
+    "omniclass": {
+      "code": "21-02 10 10",
+      "name": "Walls"
+    },
+    "bsdd": {
+      "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWall",
+      "guid": "IfcWall"
+    }
+  },
+  "IfcDoor": {
+    "uniclass2015": {
+      "code": "Pr_30_59_29",
+      "name": "Doors"
+    },
+    "omniclass": {
+      "code": "23-17 11 00",
+      "name": "Doors"
+    },
+    "bsdd": {
+      "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcDoor",
+      "guid": "IfcDoor"
+    }
+  },
+  "IfcWindow": {
+    "uniclass2015": {
+      "code": "Pr_30_59_98",
+      "name": "Windows"
+    },
+    "omniclass": {
+      "code": "23-17 17 00",
+      "name": "Windows"
+    },
+    "bsdd": {
+      "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWindow",
+      "guid": "IfcWindow"
+    }
+  },
+  "IfcSlab": {
+    "uniclass2015": {
+      "code": "Ss_25_10_25",
+      "name": "Floor systems"
+    },
+    "omniclass": {
+      "code": "21-02 20 10",
+      "name": "Floors"
+    },
+    "bsdd": {
+      "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcSlab",
+      "guid": "IfcSlab"
+    }
+  },
+  "IfcBeam": {
+    "uniclass2015": {
+      "code": "Ss_25_30_20",
+      "name": "Beam and girder systems"
+    },
+    "omniclass": {
+      "code": "21-02 10 20 20",
+      "name": "Beams"
+    },
+    "bsdd": {
+      "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBeam",
+      "guid": "IfcBeam"
+    }
+  },
+  "IfcColumn": {
+    "uniclass2015": {
+      "code": "Ss_25_30_30",
+      "name": "Column systems"
+    },
+    "omniclass": {
+      "code": "21-02 10 20 10",
+      "name": "Columns"
+    },
+    "bsdd": {
+      "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcColumn",
+      "guid": "IfcColumn"
+    }
+  },
+  "IfcRoof": {
+    "uniclass2015": {
+      "code": "Ss_25_10_65",
+      "name": "Roof systems"
+    },
+    "omniclass": {
+      "code": "21-02 30 10",
+      "name": "Roofs"
+    },
+    "bsdd": {
+      "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcRoof",
+      "guid": "IfcRoof"
+    }
+  },
+  "IfcStair": {
+    "uniclass2015": {
+      "code": "Ss_25_60_75",
+      "name": "Stair systems"
+    },
+    "omniclass": {
+      "code": "21-02 40 40",
+      "name": "Stairs"
+    },
+    "bsdd": {
+      "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcStair",
+      "guid": "IfcStair"
+    }
+  }
+}

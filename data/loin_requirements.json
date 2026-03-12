@@ -1,0 +1,202 @@
+{
+  "_comment": "LOIN (Level of Information Need) Configuration - ISO 7817-1:2024",
+  "_description": "Defines required properties per IFC class based on project requirements",
+  "_reference": "https://www.iso.org/standard/82914.html",
+  "version": "1.0",
+  "project_context": {
+    "name": "Sample BIM Project",
+    "phase": "Design Development",
+    "loi_level": "LOI 300"
+  },
+  "requirements": {
+    "IfcWall": {
+      "properties": [
+        {
+          "propertySet": "Pset_WallCommon",
+          "name": "FireRating",
+          "required": true,
+          "rationale": "Fire safety compliance"
+        },
+        {
+          "propertySet": "Pset_WallCommon",
+          "name": "IsExternal",
+          "required": true,
+          "rationale": "Energy analysis and envelope definition"
+        },
+        {
+          "propertySet": "Pset_WallCommon",
+          "name": "LoadBearing",
+          "required": true,
+          "rationale": "Structural analysis"
+        },
+        {
+          "propertySet": "Pset_WallCommon",
+          "name": "ThermalTransmittance",
+          "required": false,
+          "rationale": "Energy performance (required for external walls)"
+        }
+      ],
+      "material": {
+        "required": false,
+        "rationale": "Optional for walls at LOI 300"
+      }
+    },
+    "IfcDoor": {
+      "properties": [
+        {
+          "propertySet": "Pset_DoorCommon",
+          "name": "FireRating",
+          "required": true,
+          "rationale": "Fire safety compliance"
+        },
+        {
+          "propertySet": "Pset_DoorCommon",
+          "name": "IsExternal",
+          "required": true,
+          "rationale": "Security and energy analysis"
+        },
+        {
+          "propertySet": "Pset_DoorCommon",
+          "name": "AcousticRating",
+          "required": false,
+          "rationale": "Acoustic performance"
+        }
+      ],
+      "material": {
+        "required": false,
+        "rationale": "Optional at LOI 300"
+      }
+    },
+    "IfcWindow": {
+      "properties": [
+        {
+          "propertySet": "Pset_WindowCommon",
+          "name": "ThermalTransmittance",
+          "required": true,
+          "rationale": "Energy performance analysis"
+        },
+        {
+          "propertySet": "Pset_WindowCommon",
+          "name": "IsExternal",
+          "required": true,
+          "rationale": "Energy analysis"
+        },
+        {
+          "propertySet": "Pset_WindowCommon",
+          "name": "GlazingAreaFraction",
+          "required": false,
+          "rationale": "Daylight analysis"
+        }
+      ],
+      "material": {
+        "required": false,
+        "rationale": "Optional at LOI 300"
+      }
+    },
+    "IfcSlab": {
+      "properties": [
+        {
+          "propertySet": "Pset_SlabCommon",
+          "name": "LoadBearing",
+          "required": true,
+          "rationale": "Structural analysis"
+        },
+        {
+          "propertySet": "Pset_SlabCommon",
+          "name": "IsExternal",
+          "required": false,
+          "rationale": "Thermal envelope definition"
+        },
+        {
+          "propertySet": "Pset_SlabCommon",
+          "name": "FireRating",
+          "required": false,
+          "rationale": "Fire compartmentation"
+        }
+      ],
+      "material": {
+        "required": false,
+        "rationale": "Optional at LOI 300"
+      }
+    },
+    "IfcBeam": {
+      "properties": [
+        {
+          "propertySet": "Pset_BeamCommon",
+          "name": "LoadBearing",
+          "required": false,
+          "rationale": "Structural element assumption"
+        }
+      ],
+      "material": {
+        "required": true,
+        "rationale": "Structural material required for analysis"
+      }
+    },
+    "IfcColumn": {
+      "properties": [
+        {
+          "propertySet": "Pset_ColumnCommon",
+          "name": "LoadBearing",
+          "required": false,
+          "rationale": "Structural element assumption"
+        }
+      ],
+      "material": {
+        "required": true,
+        "rationale": "Structural material required for analysis"
+      }
+    },
+    "IfcSpace": {
+      "properties": [
+        {
+          "propertySet": "Pset_SpaceCommon",
+          "name": "NetPlannedArea",
+          "required": true,
+          "rationale": "Area scheduling and compliance"
+        },
+        {
+          "propertySet": "Pset_SpaceCommon",
+          "name": "PubliclyAccessible",
+          "required": false,
+          "rationale": "Accessibility compliance"
+        }
+      ],
+      "material": {
+        "required": false,
+        "rationale": "Not applicable for spaces"
+      }
+    },
+    "IfcRoof": {
+      "properties": [
+        {
+          "propertySet": "Pset_RoofCommon",
+          "name": "IsExternal",
+          "required": true,
+          "rationale": "Thermal envelope definition"
+        },
+        {
+          "propertySet": "Pset_RoofCommon",
+          "name": "ThermalTransmittance",
+          "required": false,
+          "rationale": "Energy performance"
+        }
+      ],
+      "material": {
+        "required": false,
+        "rationale": "Optional at LOI 300"
+      }
+    }
+  },
+  "global_requirements": {
+    "spatial_containment": {
+      "required": true,
+      "rationale": "All building elements must be contained in spatial structure (ISO 16739-1)"
+    },
+    "classification": {
+      "required": false,
+      "systems": ["Uniclass2015", "OmniClass"],
+      "rationale": "Classification recommended for cost estimation"
+    }
+  }
+}
