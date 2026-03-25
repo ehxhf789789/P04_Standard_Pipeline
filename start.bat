@@ -1,13 +1,26 @@
 @echo off
-chcp 65001 >nul
 title BIM-Vortex
 
 echo.
-echo  ╔══════════════════════════════════════════╗
-echo  ║         BIM-Vortex                       ║
-echo  ║         AI Standards Pipeline            ║
-echo  ╚══════════════════════════════════════════╝
+echo  ============================================
+echo       BIM-Vortex
+echo       AI Standards Pipeline
+echo  ============================================
 echo.
+
+:: Detect python command
+set PYTHON_CMD=python
+python --version >nul 2>&1
+if errorlevel 1 (
+    py -3 --version >nul 2>&1
+    if not errorlevel 1 (
+        set PYTHON_CMD=py -3
+    ) else (
+        echo  [ERROR] Python not found. Run install.bat first.
+        pause
+        exit /b 1
+    )
+)
 
 :: Kill existing
 echo  Cleaning up existing processes...
@@ -18,14 +31,6 @@ timeout /t 2 /nobreak >nul
 :: Ensure upload dir exists
 if not exist "%~dp0apps\backend\uploads" mkdir "%~dp0apps\backend\uploads"
 
-:: Detect python command
-set PYTHON_CMD=python
-python --version >nul 2>&1
-if errorlevel 1 (
-    py -3 --version >nul 2>&1
-    if not errorlevel 1 set PYTHON_CMD=py -3
-)
-
 echo  [1/3] Starting Backend...
 cd /d "%~dp0apps\backend"
 start "BIM-Vortex-Backend" /min cmd /c "title [Backend] :8000 && %PYTHON_CMD% -m uvicorn src.main:app --port 8000 --reload"
@@ -35,7 +40,6 @@ cd /d "%~dp0apps\frontend"
 start "BIM-Vortex-Frontend" /min cmd /c "title [Frontend] :3000 && npm run dev"
 
 echo  [3/3] Creating demo account...
-:: Wait for backend to be ready
 echo  Waiting for servers...
 :wait_loop
 timeout /t 2 /nobreak >nul
