@@ -18,9 +18,17 @@ timeout /t 2 /nobreak >nul
 :: Ensure upload dir exists
 if not exist "%~dp0apps\backend\uploads" mkdir "%~dp0apps\backend\uploads"
 
+:: Detect python command
+set PYTHON_CMD=python
+python --version >nul 2>&1
+if errorlevel 1 (
+    py -3 --version >nul 2>&1
+    if not errorlevel 1 set PYTHON_CMD=py -3
+)
+
 echo  [1/3] Starting Backend...
 cd /d "%~dp0apps\backend"
-start "BIM-Vortex-Backend" /min cmd /c "title [Backend] :8000 && python -m uvicorn src.main:app --port 8000 --reload"
+start "BIM-Vortex-Backend" /min cmd /c "title [Backend] :8000 && %PYTHON_CMD% -m uvicorn src.main:app --port 8000 --reload"
 
 echo  [2/3] Starting Frontend...
 cd /d "%~dp0apps\frontend"
