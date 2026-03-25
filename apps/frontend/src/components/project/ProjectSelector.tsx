@@ -32,6 +32,7 @@ export function ProjectSelector({
     design: { ko: "설계", en: "Design" },
     construction: { ko: "시공", en: "Construction" },
     operation: { ko: "유지관리", en: "O&M" },
+    unassigned: { ko: "미분류", en: "Unassigned" },
   };
 
   const handleCreate = async () => {

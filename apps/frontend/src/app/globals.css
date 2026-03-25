@@ -29,9 +29,9 @@
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 224 71% 7%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 224 71% 7%;
     --popover-foreground: 210 40% 98%;
     --primary: 35 91% 55%;
     --primary-foreground: 222.2 47.4% 11.2%;
@@ -80,6 +80,15 @@
   background: hsl(var(--muted-foreground) / 0.4);
 }
 
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.15);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.3);
+}
+
 /* 3D Viewer container */
 .viewer-container {
   position: relative;
@@ -94,9 +103,38 @@
   height: 100%;
 }
 
-/* Performance: only transition interactive elements, not all */
+/* Performance: only transition interactive elements */
 a, button, input, select, textarea, [role="button"] {
   transition-property: color, background-color, border-color, box-shadow, opacity;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 100ms;
+}
+
+/* Animation utilities */
+@keyframes slide-in-from-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-in-from-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-in {
+  animation-duration: 200ms;
+  animation-fill-mode: both;
+}
+
+.slide-in-from-right {
+  animation-name: slide-in-from-right;
+}
+
+.slide-in-from-left {
+  animation-name: slide-in-from-left;
+}
+
+/* Mobile improvements */
+@media (max-width: 640px) {
+  .grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
 }

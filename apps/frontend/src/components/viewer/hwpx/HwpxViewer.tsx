@@ -156,7 +156,7 @@ const RenderParagraph = React.memo(function RenderParagraph({ para }: { para: Hw
   }
 
   const style: React.CSSProperties = {
-    textAlign: para.alignment || "left",
+    textAlign: (para.alignment as React.CSSProperties["textAlign"]) || "left",
     lineHeight: para.lineSpacing ? `${Math.max(para.lineSpacing / 100, 1.2)}` : "1.8",
     marginTop: para.marginTop ? `${para.marginTop}px` : "0",
     marginBottom: para.marginBottom ? `${para.marginBottom}px` : "2px",

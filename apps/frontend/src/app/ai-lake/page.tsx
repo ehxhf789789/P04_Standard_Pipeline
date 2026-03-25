@@ -12,9 +12,11 @@ import {
   HardDrive,
   Cpu,
   GitBranch,
+  Download,
 } from "lucide-react";
 import { projectsApi, Project } from "@/lib/api/projects";
 import { queryApi, QueryStats } from "@/lib/api/query";
+import apiClient from "@/lib/api/client";
 import { useLanguageStore } from "@/store/languageStore";
 
 export default function AIDataLakePage() {
@@ -110,7 +112,49 @@ export default function AIDataLakePage() {
         </div>
 
         {/* Stats */}
-        <div className="mt-6 grid gap-3 grid-cols-2 lg:grid-cols-6">
+        {/* Export All Button */}
+        <div className="mt-6 flex gap-2 mb-2">
+          <button
+            onClick={async () => {
+              try {
+                const [kgRes, kwRes, tabRes] = await Promise.all([
+                  apiClient.get("/query/ai-data/knowledge-graph"),
+                  apiClient.get("/query/ai-data/keywords"),
+                  apiClient.get("/query/ai-data/tabular"),
+                ]);
+                const exportData = { knowledge_graph: kgRes.data, keywords: kwRes.data, tabular: tabRes.data, exported_at: new Date().toISOString() };
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+                const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ai_data_lake_full.json"; a.click();
+              } catch (e) { console.error(e); }
+            }}
+            className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-medium text-white shadow-sm"
+          >
+            <Download className="h-4 w-4" />
+            {L ? "전체 JSON 내보내기" : "Export All (JSON)"}
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                const { data } = await apiClient.get("/query/ai-data/tabular");
+                const tables = data.tables || [];
+                let csv = "";
+                tables.forEach((t: any) => {
+                  csv += `\n# ${t.source || "Table"} (${t.phase || ""})\n`;
+                  if (t.headers) csv += t.headers.join(",") + "\n";
+                  (t.rows || []).forEach((r: string[]) => csv += r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",") + "\n");
+                });
+                const blob = new Blob([csv], { type: "text/csv" });
+                const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ai_data_lake_tables.csv"; a.click();
+              } catch (e) { console.error(e); }
+            }}
+            className="inline-flex items-center gap-2 rounded-lg border bg-white dark:bg-slate-800 hover:bg-slate-50 px-4 py-2 text-sm font-medium shadow-sm"
+          >
+            <Download className="h-4 w-4" />
+            {L ? "테이블 CSV 내보내기" : "Export Tables (CSV)"}
+          </button>
+        </div>
+
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-6">
           <MiniStat label={L ? "등록 문서" : "Documents"} value={stats.docs} icon={<FileText className="h-3.5 w-3.5" />} />
           <MiniStat label={L ? "임베딩" : "Embeddings"} value={stats.embeddings} icon={<Cpu className="h-3.5 w-3.5" />} />
           <MiniStat label="KG Nodes" value={stats.kgNodes} icon={<GitBranch className="h-3.5 w-3.5" />} />

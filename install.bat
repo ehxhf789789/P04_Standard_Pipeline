@@ -32,24 +32,36 @@ echo  [OK] Node.js found
 node --version
 
 echo.
-echo  [1/3] Installing Python dependencies...
+echo  [1/4] Installing Python dependencies...
 cd /d "%~dp0apps\backend"
 pip install fastapi uvicorn python-multipart pydantic pydantic-settings python-jose aiofiles sqlalchemy aiosqlite httpx PyMuPDF python-docx openpyxl python-pptx lxml olefile 2>&1 | findstr /i "successfully already"
 if errorlevel 1 echo  (Some packages may have been skipped)
 
 echo.
-echo  [2/3] Installing Node.js dependencies...
+echo  [2/4] Installing Node.js dependencies...
 cd /d "%~dp0"
 call npm install 2>&1 | findstr /i "added up"
 
 echo.
-echo  [3/3] Copying WASM files...
+echo  [3/4] Copying WASM files...
+if not exist "apps\frontend\public\wasm" mkdir "apps\frontend\public\wasm"
 if exist "node_modules\web-ifc\web-ifc.wasm" (
     copy /Y "node_modules\web-ifc\web-ifc.wasm" "apps\frontend\public\wasm\web-ifc.wasm" >nul
     echo  [OK] WASM files copied
 ) else (
-    echo  [SKIP] web-ifc WASM not found
+    :: Try apps/frontend node_modules
+    if exist "apps\frontend\node_modules\web-ifc\web-ifc.wasm" (
+        copy /Y "apps\frontend\node_modules\web-ifc\web-ifc.wasm" "apps\frontend\public\wasm\web-ifc.wasm" >nul
+        echo  [OK] WASM files copied from frontend node_modules
+    ) else (
+        echo  [SKIP] web-ifc WASM not found - IFC 3D viewer will use fallback
+    )
 )
+
+echo.
+echo  [4/4] Creating upload directory...
+if not exist "apps\backend\uploads" mkdir "apps\backend\uploads"
+echo  [OK] Upload directory ready
 
 echo.
 echo  ============================================

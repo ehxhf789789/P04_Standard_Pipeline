@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 
 interface Props {
   url: string;
-  L: boolean;
+  L?: boolean;
 }
 
 interface HwpxParagraph {
@@ -32,11 +32,12 @@ export function HwpxViewer({ url, L }: Props) {
 
         // Find section XML files
         const sectionFiles = Object.keys(zip.files)
-          .filter((n) => n.match(/Contents\/section\d+\.xml/i) || n.match(/content.*\.xml/i))
+          .filter((n) => /Contents\/section\d+\.xml/i.test(n) || /Contents\/content.*\.xml/i.test(n))
           .sort();
 
         // Also try header for styles
-        for (const filename of sectionFiles.length > 0 ? sectionFiles : Object.keys(zip.files).filter((n) => n.endsWith(".xml"))) {
+        const fallbackXml = Object.keys(zip.files).filter((n) => n.endsWith(".xml") && !n.includes("META-INF") && !n.includes("settings") && !n.includes("header"));
+        for (const filename of sectionFiles.length > 0 ? sectionFiles : fallbackXml) {
           const file = zip.files[filename];
           if (!file || file.dir) continue;
 

@@ -126,6 +126,13 @@ export default function ProjectDetailPage() {
   const bimFiles = files.filter((f) => f.category === "bim_model").length;
   const docFiles = files.filter((f) => f.category === "document").length;
   const otherFiles = totalFiles - bimFiles - docFiles;
+  const lifecyclePhase = (project as any).lifecycle_phase;
+
+  const phaseLabels: Record<string, { ko: string; en: string; color: string }> = {
+    design: { ko: "설계 단계", en: "Design", color: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" },
+    construction: { ko: "시공 단계", en: "Construction", color: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" },
+    operation: { ko: "유지관리", en: "O&M", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300" },
+  };
 
   return (
     <div className="space-y-5 max-w-6xl mx-auto">
@@ -136,8 +143,15 @@ export default function ProjectDetailPage() {
             <ArrowLeft className="h-3 w-3" />
             {L ? "프로젝트" : "Projects"}
           </Link>
-          <h1 className="text-2xl font-bold">{project.name}</h1>
-          {project.description && <p className="text-sm text-muted-foreground">{project.description}</p>}
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">{project.name}</h1>
+            {lifecyclePhase && phaseLabels[lifecyclePhase] && (
+              <span className={`text-[10px] font-medium rounded-full px-2.5 py-0.5 ${phaseLabels[lifecyclePhase].color}`}>
+                {L ? phaseLabels[lifecyclePhase].ko : phaseLabels[lifecyclePhase].en}
+              </span>
+            )}
+          </div>
+          {project.description && <p className="text-sm text-muted-foreground mt-0.5">{project.description}</p>}
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDelete}>

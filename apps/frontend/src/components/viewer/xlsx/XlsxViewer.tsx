@@ -34,29 +34,35 @@ export function XlsxDocViewer({ url }: Props) {
   const tableRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
         const xlsxModule = await import("xlsx");
         const XLSX = xlsxModule.default || xlsxModule;
+        if (!XLSX || !XLSX.read) throw new Error("XLSX module failed to load");
         const resp = await fetch(url);
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const buf = await resp.arrayBuffer();
-        const wb = XLSX.read(buf, { type: "array" });
+        if (!buf || buf.byteLength === 0) throw new Error("Empty file");
+        const wb = XLSX.read(new Uint8Array(buf), { type: "array" });
+        if (cancelled) return;
 
-        const parsed: SheetData[] = wb.SheetNames.map((name: string) => {
-          const ws = wb.Sheets[name];
+        const parsed: SheetData[] = (wb.SheetNames || []).map((name: string) => {
+          const ws = wb.Sheets?.[name];
+          if (!ws) return { name, data: [], merges: [] };
           const data: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
           const merges = ws["!merges"] || [];
-          return { name, data: data.slice(0, 200), merges };
+          return { name, data: data.slice(0, 500), merges };
         });
 
-        setSheets(parsed);
+        setSheets(parsed.filter((s) => s.data.length > 0));
       } catch (e: any) {
-        setError(e.message || "Failed to load");
+        if (!cancelled) setError(e.message || "Failed to load");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => { cancelled = true; };
   }, [url]);
 
   const handleCopy = useCallback(() => {
@@ -92,7 +98,7 @@ export function XlsxDocViewer({ url }: Props) {
   const maxCols = Math.max(...sheet.data.map((r) => r.length), 0);
 
   return (
-    <div className="rounded-lg border overflow-hidden bg-white">
+    <div className="rounded-lg border overflow-hidden bg-white dark:bg-slate-900">
       {/* Toolbar */}
       <div className="flex items-center justify-between bg-green-700 text-white px-3 py-1.5 text-xs">
         <div className="flex items-center gap-2">

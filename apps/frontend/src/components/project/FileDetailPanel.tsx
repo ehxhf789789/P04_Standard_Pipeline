@@ -48,7 +48,7 @@ export function FileDetailPanel({ file, projectId, onClose }: Props) {
       <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} />
 
       {/* Panel */}
-      <div className="fixed right-0 top-0 h-full w-[700px] max-w-[90vw] bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200">
+      <div className="fixed right-0 top-0 h-full w-[700px] max-w-[90vw] bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b bg-slate-50">
           <div className="flex items-center gap-3 min-w-0">
@@ -60,9 +60,9 @@ export function FileDetailPanel({ file, projectId, onClose }: Props) {
                 <span className={`font-mono px-1 py-0.5 rounded ${file.ai_status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100"}`}>
                   {file.ai_status}
                 </span>
-                {parsed?.document_type && (
+                {(parsed as any)?.document_type && (
                   <span className="bg-amber-50 text-amber-700 px-1 py-0.5 rounded">
-                    {L ? (parsed.document_type as any).label_ko : (parsed.document_type as any).label_en}
+                    {L ? (parsed as any).document_type.label_ko : (parsed as any).document_type.label_en}
                   </span>
                 )}
               </div>
@@ -104,7 +104,7 @@ export function FileDetailPanel({ file, projectId, onClose }: Props) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-auto p-5">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-5 min-h-0">
           {loading ? (
             <ViewerLoading />
           ) : activeTab === "preview" ? (
@@ -250,38 +250,38 @@ function IFCViewer({ parsed, L }: { parsed: ParsedData | null; L: boolean }) {
     IFCRELDEFINESBYPROPERTIES: "#334155", IFCRELAGGREGATES: "#94a3b8",
   };
 
-  // Real IFC 3D viewer using web-ifc + Three.js
+  // Real IFC 3D viewer using Three.js (schema-based visualization)
   useEffect(() => {
     if (mode !== "3d" || !canvasRef.current) return;
     if (rendered) return;
 
     let cleanup: (() => void) | null = null;
+    let cancelled = false;
 
-    // Small delay to ensure DOM is fully rendered
     const timer = setTimeout(async () => {
+      if (cancelled) return;
       try {
         const THREE = await import("three");
         const { OrbitControls } = await import("three/examples/jsm/controls/OrbitControls.js");
-        // web-ifc loaded separately if needed for actual geometry
-        // const WebIFC = await import("web-ifc");
 
-        const container = canvasRef.current!.parentElement!;
-        const canvas = canvasRef.current!;
-        const w = container.clientWidth || 600;
+        if (!canvasRef.current || cancelled) return;
+
+        const container = canvasRef.current.parentElement!;
+        const canvas = canvasRef.current;
+        const w = Math.max(container.clientWidth || 600, 300);
         const h = 400;
-        canvas.width = w;
-        canvas.height = h;
+        canvas.width = w * Math.min(window.devicePixelRatio, 2);
+        canvas.height = h * Math.min(window.devicePixelRatio, 2);
         canvas.style.width = `${w}px`;
         canvas.style.height = `${h}px`;
 
-        // Three.js setup
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x1a1a2e);
 
         const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
         camera.position.set(20, 15, 20);
 
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
         renderer.setSize(w, h);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -289,35 +289,23 @@ function IFCViewer({ parsed, L }: { parsed: ParsedData | null; L: boolean }) {
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
 
-        // Lights
         scene.add(new THREE.AmbientLight(0x606080, 2));
         const dl = new THREE.DirectionalLight(0xffffff, 1.5);
         dl.position.set(15, 20, 10);
         scene.add(dl);
-        scene.add(new THREE.DirectionalLight(0x8888ff, 0.5).translateZ(-10));
+        const bl = new THREE.DirectionalLight(0x8888ff, 0.5);
+        bl.position.set(-10, 5, -10);
+        scene.add(bl);
 
-        // Grid
         scene.add(new THREE.GridHelper(30, 30, 0x333355, 0x222244));
         scene.add(new THREE.AxesHelper(5));
 
-        // Load IFC with web-ifc
-        const ifcApi = new WebIFC.IfcAPI();
-        await ifcApi.Init();
-
-        // Fetch IFC file
-        const fileUrl = `${API_URL}/api/v1/projects/${parsed?.file_id ? "" : ""}`;
-        // We don't have direct file URL here, so use the downloadUrl from parent
-        // The parsed data has file_id but we need the download URL
-        // For now, just render the schema-based visualization with real Three.js
-
-        // Build 3D from entity data
         const entityColors: Record<string, number> = {
           IFCWALL: 0x4488cc, IFCSLAB: 0x44cc88, IFCBEAM: 0xccaa44,
           IFCCOLUMN: 0xcc4444, IFCDOOR: 0x8844cc, IFCWINDOW: 0x44cccc,
           IFCFOOTING: 0x6644cc, IFCRAILING: 0xcc4488,
         };
 
-        // Create geometry for each entity type based on count
         let meshIndex = 0;
         const group = new THREE.Group();
 
@@ -325,85 +313,59 @@ function IFCViewer({ parsed, L }: { parsed: ParsedData | null; L: boolean }) {
           const typeUpper = type.toUpperCase();
           const color = entityColors[typeUpper];
           if (!color) return;
-
           const num = Math.min(Number(count), 10);
           const mat = new THREE.MeshStandardMaterial({
-            color,
-            transparent: true,
+            color, transparent: true,
             opacity: typeUpper === "IFCWINDOW" ? 0.4 : 0.7,
-            roughness: 0.5,
-            metalness: 0.1,
+            roughness: 0.5, metalness: 0.1,
           });
-
           for (let i = 0; i < num; i++) {
-            let geo: THREE.BufferGeometry;
+            let geo: any;
             const seed = meshIndex * 137 + i * 53;
             const x = ((seed * 7) % 20) - 10;
             const z = ((seed * 13) % 16) - 8;
             const floor = (seed % 3);
             const y = floor * 3;
-
             switch (typeUpper) {
-              case "IFCWALL":
-                geo = new THREE.BoxGeometry(0.2 + (seed % 3) * 0.05, 2.8, 2 + (seed % 5) * 0.5);
-                break;
-              case "IFCSLAB":
-                geo = new THREE.BoxGeometry(4 + (seed % 4), 0.25, 3 + (seed % 3));
-                break;
-              case "IFCBEAM":
-                geo = new THREE.BoxGeometry(3 + (seed % 4), 0.3, 0.25);
-                break;
-              case "IFCCOLUMN":
-                geo = new THREE.CylinderGeometry(0.15, 0.15, 2.8, 8);
-                break;
-              case "IFCDOOR":
-                geo = new THREE.BoxGeometry(0.8, 2.1, 0.1);
-                break;
-              case "IFCWINDOW":
-                geo = new THREE.BoxGeometry(1.2, 1, 0.08);
-                break;
-              case "IFCFOOTING":
-                geo = new THREE.BoxGeometry(1.5, 0.5, 1.5);
-                break;
-              case "IFCRAILING":
-                geo = new THREE.BoxGeometry(2, 0.8, 0.05);
-                break;
-              default:
-                geo = new THREE.BoxGeometry(1, 1, 1);
+              case "IFCWALL": geo = new THREE.BoxGeometry(0.2 + (seed % 3) * 0.05, 2.8, 2 + (seed % 5) * 0.5); break;
+              case "IFCSLAB": geo = new THREE.BoxGeometry(4 + (seed % 4), 0.25, 3 + (seed % 3)); break;
+              case "IFCBEAM": geo = new THREE.BoxGeometry(3 + (seed % 4), 0.3, 0.25); break;
+              case "IFCCOLUMN": geo = new THREE.CylinderGeometry(0.15, 0.15, 2.8, 8); break;
+              case "IFCDOOR": geo = new THREE.BoxGeometry(0.8, 2.1, 0.1); break;
+              case "IFCWINDOW": geo = new THREE.BoxGeometry(1.2, 1, 0.08); break;
+              case "IFCFOOTING": geo = new THREE.BoxGeometry(1.5, 0.5, 1.5); break;
+              case "IFCRAILING": geo = new THREE.BoxGeometry(2, 0.8, 0.05); break;
+              default: geo = new THREE.BoxGeometry(1, 1, 1);
             }
-
             const mesh = new THREE.Mesh(geo, mat);
             mesh.position.set(x * 0.5, y + 1.4, z * 0.5);
-            mesh.castShadow = true;
-
-            // Add edges for wireframe effect
             const edges = new THREE.EdgesGeometry(geo);
-            const edgeMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 });
-            const edgeLine = new THREE.LineSegments(edges, edgeMat);
+            const edgeLine = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 }));
             mesh.add(edgeLine);
-
             group.add(mesh);
             meshIndex++;
           }
         });
 
-        // Center the group
-        const box = new THREE.Box3().setFromObject(group);
-        const center = box.getCenter(new THREE.Vector3());
-        group.position.sub(center);
-        group.position.y += box.getSize(new THREE.Vector3()).y / 2;
-        scene.add(group);
-
-        // Fit camera
-        const size = box.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        camera.position.set(maxDim * 1.5, maxDim * 1.2, maxDim * 1.5);
-        controls.target.set(0, size.y / 2, 0);
+        if (group.children.length > 0) {
+          const box = new THREE.Box3().setFromObject(group);
+          const center = box.getCenter(new THREE.Vector3());
+          group.position.sub(center);
+          group.position.y += box.getSize(new THREE.Vector3()).y / 2;
+          scene.add(group);
+          const size = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z) || 10;
+          camera.position.set(maxDim * 1.5, maxDim * 1.2, maxDim * 1.5);
+          controls.target.set(0, size.y / 2, 0);
+        } else {
+          camera.position.set(15, 12, 15);
+          controls.target.set(0, 2, 0);
+        }
         controls.update();
 
-        // Animation
         let animId: number;
         const animate = () => {
+          if (cancelled) return;
           animId = requestAnimationFrame(animate);
           controls.update();
           renderer.render(scene, camera);
@@ -420,10 +382,10 @@ function IFCViewer({ parsed, L }: { parsed: ParsedData | null; L: boolean }) {
       } catch (e) {
         console.error("3D viewer init failed:", e);
       }
-    }, 100);
+    }, 150);
 
-    return () => { clearTimeout(timer); if (cleanup) cleanup(); };
-  }, [mode, rendered, sorted, parsed]);
+    return () => { cancelled = true; clearTimeout(timer); if (cleanup) cleanup(); };
+  }, [mode, rendered, sorted]);
 
   return (
     <div className="space-y-2">

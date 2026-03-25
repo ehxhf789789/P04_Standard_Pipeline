@@ -16,15 +16,43 @@ export default function TabularPage() {
   const [sortCol, setSortCol] = useState<number | null>(null);
   const [sortAsc, setSortAsc] = useState(true);
   const [phaseFilter, setPhaseFilter] = useState("all");
+  const [isoFilter, setIsoFilter] = useState("all");
 
   useEffect(() => {
     apiClient.get("/query/ai-data/tabular").then(({ data }) => setTables(data.tables || [])).catch(console.error).finally(() => setLoading(false));
   }, []);
 
+  // ISO standard codes detected per table
+  const isoStandards = useMemo(() => {
+    const codes = new Set<string>();
+    tables.forEach((t) => {
+      const src = (t.source || "").toLowerCase();
+      const headers = (t.headers || []).join(" ").toLowerCase();
+      const combined = src + " " + headers;
+      if (combined.includes("ifc") || combined.includes("16739")) codes.add("ISO 16739");
+      if (combined.includes("bsdd") || combined.includes("23386")) codes.add("ISO 23386");
+      if (combined.includes("loin") || combined.includes("7817")) codes.add("ISO 7817");
+      if (combined.includes("ids")) codes.add("IDS 1.0");
+      if (combined.includes("19650") || combined.includes("cde")) codes.add("ISO 19650");
+      if (combined.includes("cobie") || combined.includes("asset")) codes.add("COBie");
+      if (combined.includes("55000") || combined.includes("maintenance")) codes.add("ISO 55000");
+    });
+    if (codes.size === 0) codes.add("General");
+    return [...codes].sort();
+  }, [tables]);
+
   const filteredTables = useMemo(() => {
-    if (phaseFilter === "all") return tables;
-    return tables.filter((t) => t.phase === phaseFilter || !t.phase);
-  }, [tables, phaseFilter]);
+    let result = tables;
+    if (phaseFilter !== "all") result = result.filter((t) => t.phase === phaseFilter || !t.phase);
+    if (isoFilter !== "all") {
+      result = result.filter((t) => {
+        const combined = ((t.source || "") + " " + (t.headers || []).join(" ")).toLowerCase();
+        const code = isoFilter.toLowerCase();
+        return combined.includes(code.replace("iso ", "").replace(" ", ""));
+      });
+    }
+    return result;
+  }, [tables, phaseFilter, isoFilter]);
 
   const currentTable = filteredTables[selectedTable] || null;
 
@@ -74,18 +102,34 @@ export default function TabularPage() {
           <h1 className="text-2xl font-bold">{L ? "정형 데이터셋" : "Tabular Datasets"}</h1>
           <p className="text-sm text-muted-foreground">{filteredTables.length} {L ? "테이블" : "tables"} / {filteredRows.length} {L ? "행" : "rows"}</p>
         </div>
-        <button onClick={handleExportCSV} disabled={!currentTable} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50">
-          <Download className="h-3.5 w-3.5" /> {L ? "CSV 추출" : "Export CSV"}
-        </button>
+        <div className="flex gap-2">
+          <button onClick={handleExportCSV} disabled={!currentTable} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50">
+            <Download className="h-3.5 w-3.5" /> CSV
+          </button>
+          <button onClick={() => {
+            if (!currentTable) return;
+            const blob = new Blob([JSON.stringify(currentTable, null, 2)], { type: "application/json" });
+            const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${currentTable.source || "table"}.json`; a.click();
+          }} disabled={!currentTable} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">
+            <Download className="h-3.5 w-3.5" /> JSON
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
-        <div className="flex items-center gap-1 bg-white border rounded-md px-2 py-1">
+        <div className="flex items-center gap-1 bg-white dark:bg-slate-800 border rounded-md px-2 py-1">
           <Filter className="h-3.5 w-3.5 text-muted-foreground" />
           <select value={phaseFilter} onChange={(e) => { setPhaseFilter(e.target.value); setSelectedTable(0); }} className="text-xs bg-transparent border-0 focus:outline-none">
             <option value="all">{L ? "전체 단계" : "All phases"}</option>
             {phases.map((p) => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </div>
+        <div className="flex items-center gap-1 bg-white dark:bg-slate-800 border rounded-md px-2 py-1">
+          <Filter className="h-3.5 w-3.5 text-emerald-500" />
+          <select value={isoFilter} onChange={(e) => { setIsoFilter(e.target.value); setSelectedTable(0); }} className="text-xs bg-transparent border-0 focus:outline-none">
+            <option value="all">{L ? "전체 표준" : "All standards"}</option>
+            {isoStandards.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div className="flex items-center gap-1 bg-white border rounded-md px-2 py-1 flex-1 max-w-xs">
