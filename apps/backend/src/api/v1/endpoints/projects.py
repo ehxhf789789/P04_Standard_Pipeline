@@ -70,9 +70,12 @@ _projects: dict[UUID, dict] = _load_projects_metadata()
 async def list_projects(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    lifecycle_phase: Optional[str] = Query(None, description="Filter by phase: design, construction, operation"),
 ):
-    """List all projects with pagination."""
+    """List all projects with pagination, optionally filtered by lifecycle phase."""
     projects = list(_projects.values())
+    if lifecycle_phase:
+        projects = [p for p in projects if p.get("lifecycle_phase") == lifecycle_phase]
     total = len(projects)
     start = (page - 1) * page_size
     end = start + page_size
@@ -97,10 +100,12 @@ async def create_project(project: ProjectCreate):
         "id": project_id,
         "name": project.name,
         "description": project.description,
+        "lifecycle_phase": project.lifecycle_phase or "design",
         "status": "created",
         "created_at": now,
         "updated_at": now,
         "ifc_file_count": 0,
+        "file_count": 0,
         "latest_run_status": None,
     }
 
@@ -132,6 +137,8 @@ async def update_project(project_id: UUID, update: ProjectUpdate):
         project["name"] = update.name
     if update.description is not None:
         project["description"] = update.description
+    if update.lifecycle_phase is not None:
+        project["lifecycle_phase"] = update.lifecycle_phase
 
     project["updated_at"] = datetime.utcnow()
     _save_projects_metadata()

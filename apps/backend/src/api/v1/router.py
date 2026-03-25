@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from src.api.v1.endpoints import projects, pipeline, validation, enrichment, outputs, files, auth
+from src.api.v1.endpoints import projects, pipeline, validation, enrichment, outputs, files, auth, query
 
 api_router = APIRouter()
 
@@ -16,3 +16,4 @@ api_router.include_router(pipeline.router, prefix="/projects/{project_id}/pipeli
 api_router.include_router(validation.router, prefix="/projects/{project_id}/validation", tags=["Validation"])
 api_router.include_router(enrichment.router, prefix="/projects/{project_id}/enrichment", tags=["Enrichment"])
 api_router.include_router(outputs.router, prefix="/projects/{project_id}/outputs", tags=["Outputs"])
+api_router.include_router(query.router, prefix="/query", tags=["Query & Search"])

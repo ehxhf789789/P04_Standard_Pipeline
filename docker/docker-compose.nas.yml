@@ -1,0 +1,63 @@
+version: "3.8"
+
+# BIM-Vortex - Synology NAS Deployment
+# Usage: docker-compose -f docker-compose.nas.yml up -d
+
+services:
+  backend:
+    build:
+      context: ../apps/backend
+      dockerfile: Dockerfile
+    container_name: bim-vortex-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - bim-uploads:/app/uploads
+      - bim-data:/app/data
+      - bim-outputs:/app/outputs
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./bim_pipeline.db
+      - DEBUG=false
+      - CORS_ORIGINS=["https://bim-vortex.synology.me","http://localhost:3000"]
+      - SECRET_KEY=${SECRET_KEY:-change-this-in-production-use-openssl-rand-hex-32}
+      - MAX_UPLOAD_SIZE_MB=500
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ../apps/frontend
+      dockerfile: Dockerfile
+    container_name: bim-vortex-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  bim-uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /volume1/docker/bim-vortex/uploads
+  bim-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /volume1/docker/bim-vortex/data
+  bim-outputs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /volume1/docker/bim-vortex/outputs

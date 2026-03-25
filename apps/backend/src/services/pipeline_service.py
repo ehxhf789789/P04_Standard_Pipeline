@@ -2,9 +2,16 @@
 Pipeline service layer.
 
 Manages pipeline execution, state tracking, and result retrieval.
+
+Integrates:
+- Document parsers (IFC, PDF, DOCX, XLSX, PPTX, HWPX)
+- Standards validation (IDS 1.0, LOIN)
+- bSDD enrichment
+- AI output generation (KG, Embeddings, Tabular, GNN)
 """
 
 import json
+import logging
 import threading
 import traceback
 from datetime import datetime
@@ -19,6 +26,7 @@ from src.workers.celery_app import celery_app
 from src.workers.tasks.pipeline_tasks import run_pipeline_task
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 # Add pipeline module to path
 import sys

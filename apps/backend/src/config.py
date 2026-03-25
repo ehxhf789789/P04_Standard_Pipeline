@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     debug: bool = False
     api_prefix: str = "/api/v1"
 
-    # Database
-    database_url: str = "postgresql+asyncpg://user:password@localhost:5432/bim_pipeline"
+    # Database (SQLite for local demo, PostgreSQL for production)
+    database_url: str = "sqlite+aiosqlite:///./bim_pipeline.db"
 
     # Redis
     redis_url: str = "redis://localhost:6379/0"

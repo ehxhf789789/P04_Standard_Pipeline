@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { IFCViewer } from "@/components/viewer/IFCViewer";
 import { projectsApi } from "@/lib/api/projects";
 import { API_BASE } from "@/lib/api/client";
+import { useLanguageStore } from "@/store/languageStore";
 
 export default function ViewerPage() {
   const params = useParams();
@@ -14,6 +15,8 @@ export default function ViewerPage() {
   const projectId = params.id as string;
   const fileIdParam = searchParams.get("file");
 
+  const { lang } = useLanguageStore();
+  const L = lang === "ko";
   const [fileUrl, setFileUrl] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,10 +27,10 @@ export default function ViewerPage() {
       setError(null);
       try {
         const filesData = await projectsApi.listFiles(projectId);
-        const files = filesData.files || filesData.items || filesData || [];
+        const files = filesData.files || [];
 
         if (files.length === 0) {
-          setError("프로젝트에 IFC 파일이 없습니다.");
+          setError(L ? "프로젝트에 IFC 파일이 없습니다." : "No IFC files in this project.");
           return;
         }
 
@@ -37,7 +40,7 @@ export default function ViewerPage() {
           : files[0];
 
         if (!targetFile) {
-          setError("파일을 찾을 수 없습니다.");
+          setError(L ? "파일을 찾을 수 없습니다." : "File not found.");
           return;
         }
 
@@ -46,7 +49,7 @@ export default function ViewerPage() {
         setFileUrl(url);
       } catch (e) {
         console.error("Failed to load files:", e);
-        setError("파일 목록을 불러오는데 실패했습니다.");
+        setError(L ? "파일 목록을 불러오는데 실패했습니다." : "Failed to load file list.");
       } finally {
         setIsLoading(false);
       }

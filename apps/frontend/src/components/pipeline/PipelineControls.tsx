@@ -27,7 +27,7 @@ export function PipelineControls({
       await pipelineApi.start(projectId);
       onStatusChange?.();
     } catch (error: any) {
-      const message = error?.response?.data?.detail || "파이프라인 시작 실패";
+      const message = error?.response?.data?.detail || "Pipeline start failed";
       alert(message);
       console.error("Failed to start pipeline:", error);
     } finally {

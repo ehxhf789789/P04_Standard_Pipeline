@@ -1,7 +1,19 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { Upload, FileUp, Loader2, X, CheckCircle } from "lucide-react";
+import {
+  Upload,
+  FileUp,
+  Loader2,
+  X,
+  CheckCircle,
+  FileText,
+  Box,
+  FileSpreadsheet,
+  Presentation,
+  File,
+  Image,
+} from "lucide-react";
 import { projectsApi } from "@/lib/api/projects";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +22,7 @@ import { cn } from "@/lib/utils";
 
 interface FileUploadProps {
   projectId: string;
+  lifecyclePhase?: string;
   onUpload?: () => void;
 }
 
@@ -20,10 +33,42 @@ interface UploadingFile {
   error?: string;
 }
 
-export function FileUpload({ projectId, onUpload }: FileUploadProps) {
+const SUPPORTED_EXTENSIONS = [
+  ".ifc", ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".csv",
+  ".pptx", ".ppt", ".hwpx", ".hwp", ".png", ".jpg", ".jpeg",
+  ".tiff", ".ids", ".bcf", ".bcfzip",
+];
+
+const ACCEPT_STRING = SUPPORTED_EXTENSIONS.join(",");
+
+const FORMAT_GROUPS = [
+  { label: "BIM", exts: "IFC", icon: Box, color: "text-blue-600" },
+  { label: "Document", exts: "PDF, DOCX, HWPX", icon: FileText, color: "text-red-600" },
+  { label: "Spreadsheet", exts: "XLSX, CSV", icon: FileSpreadsheet, color: "text-green-600" },
+  { label: "Presentation", exts: "PPTX", icon: Presentation, color: "text-orange-600" },
+  { label: "Image", exts: "PNG, JPG", icon: Image, color: "text-purple-600" },
+];
+
+function getFileIcon(filename: string) {
+  const ext = filename.split(".").pop()?.toLowerCase() || "";
+  if (ext === "ifc") return <Box className="h-4 w-4 text-blue-600" />;
+  if (["pdf"].includes(ext)) return <FileText className="h-4 w-4 text-red-600" />;
+  if (["docx", "doc", "hwpx", "hwp"].includes(ext)) return <FileText className="h-4 w-4 text-indigo-600" />;
+  if (["xlsx", "xls", "csv"].includes(ext)) return <FileSpreadsheet className="h-4 w-4 text-green-600" />;
+  if (["pptx", "ppt"].includes(ext)) return <Presentation className="h-4 w-4 text-orange-600" />;
+  if (["png", "jpg", "jpeg", "tiff"].includes(ext)) return <Image className="h-4 w-4 text-purple-600" />;
+  return <File className="h-4 w-4 text-gray-600" />;
+}
+
+export function FileUpload({ projectId, lifecyclePhase, onUpload }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const isValidFile = (filename: string) => {
+    const ext = "." + (filename.split(".").pop()?.toLowerCase() || "");
+    return SUPPORTED_EXTENSIONS.includes(ext);
+  };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -39,9 +84,7 @@ export function FileUpload({ projectId, onUpload }: FileUploadProps) {
     e.preventDefault();
     setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files).filter(
-      (f) => f.name.toLowerCase().endsWith(".ifc")
-    );
+    const files = Array.from(e.dataTransfer.files).filter((f) => isValidFile(f.name));
     if (files.length > 0) {
       uploadFiles(files);
     }
@@ -69,26 +112,22 @@ export function FileUpload({ projectId, onUpload }: FileUploadProps) {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       try {
-        // Simulate progress (actual progress would come from axios)
         setUploadingFiles((prev) =>
-          prev.map((u) =>
-            u.file === file ? { ...u, progress: 30 } : u
-          )
+          prev.map((u) => (u.file === file ? { ...u, progress: 30 } : u))
         );
 
-        await projectsApi.uploadFile(projectId, file);
+        await projectsApi.uploadFile(projectId, file, lifecyclePhase);
 
         setUploadingFiles((prev) =>
           prev.map((u) =>
             u.file === file ? { ...u, progress: 100, status: "success" } : u
           )
         );
-      } catch (error) {
+      } catch (error: any) {
+        const errorMsg = error?.response?.data?.detail || "Upload failed";
         setUploadingFiles((prev) =>
           prev.map((u) =>
-            u.file === file
-              ? { ...u, status: "error", error: "Upload failed" }
-              : u
+            u.file === file ? { ...u, status: "error", error: errorMsg } : u
           )
         );
       }
@@ -96,11 +135,8 @@ export function FileUpload({ projectId, onUpload }: FileUploadProps) {
 
     onUpload?.();
 
-    // Clear successful uploads after a delay
     setTimeout(() => {
-      setUploadingFiles((prev) =>
-        prev.filter((u) => u.status !== "success")
-      );
+      setUploadingFiles((prev) => prev.filter((u) => u.status !== "success"));
     }, 3000);
   };
 
@@ -113,8 +149,8 @@ export function FileUpload({ projectId, onUpload }: FileUploadProps) {
       {/* Drop Zone */}
       <Card
         className={cn(
-          "border-2 border-dashed transition-colors",
-          isDragging && "border-primary bg-primary/5"
+          "border-2 border-dashed transition-all",
+          isDragging && "border-primary bg-primary/5 scale-[1.01]"
         )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -127,10 +163,12 @@ export function FileUpload({ projectId, onUpload }: FileUploadProps) {
               isDragging && "text-primary"
             )}
           />
-          <p className="mb-2 font-medium">
-            {isDragging ? "Drop files here" : "Drag & drop IFC files"}
+          <p className="mb-1 font-medium">
+            {isDragging ? "Drop files here" : "Drag & drop construction documents"}
           </p>
-          <p className="mb-4 text-sm text-muted-foreground">or</p>
+          <p className="mb-4 text-sm text-muted-foreground">
+            All construction lifecycle documents supported
+          </p>
           <Button variant="secondary" onClick={() => inputRef.current?.click()}>
             <FileUp className="mr-2 h-4 w-4" />
             Browse Files
@@ -138,14 +176,21 @@ export function FileUpload({ projectId, onUpload }: FileUploadProps) {
           <input
             ref={inputRef}
             type="file"
-            accept=".ifc"
+            accept={ACCEPT_STRING}
             multiple
             className="hidden"
             onChange={handleFileSelect}
           />
-          <p className="mt-3 text-xs text-muted-foreground">
-            Supports IFC 2x3 and IFC 4.x formats (ISO 16739-1:2024)
-          </p>
+
+          {/* Supported Formats */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            {FORMAT_GROUPS.map((group) => (
+              <div key={group.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <group.icon className={`h-3.5 w-3.5 ${group.color}`} />
+                <span>{group.exts}</span>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
@@ -157,6 +202,7 @@ export function FileUpload({ projectId, onUpload }: FileUploadProps) {
               key={`${upload.file.name}-${index}`}
               className="flex items-center gap-3 rounded-md border p-3"
             >
+              {getFileIcon(upload.file.name)}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <p className="truncate text-sm font-medium">

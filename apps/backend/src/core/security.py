@@ -4,15 +4,12 @@ Security utilities for JWT authentication.
 
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+import hashlib
+import secrets
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from pydantic import BaseModel
 
 from src.config import settings
-
-
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class TokenData(BaseModel):
@@ -30,13 +27,19 @@ class Token(BaseModel):
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against its hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify a password against its hash (SHA256 + salt for demo)."""
+    if ":" not in hashed_password:
+        return False
+    salt, hash_val = hashed_password.split(":", 1)
+    check = hashlib.sha256((salt + plain_password).encode()).hexdigest()
+    return check == hash_val
 
 
 def get_password_hash(password: str) -> str:
-    """Hash a password."""
-    return pwd_context.hash(password)
+    """Hash a password with salt (SHA256 for demo)."""
+    salt = secrets.token_hex(16)
+    hash_val = hashlib.sha256((salt + password).encode()).hexdigest()
+    return f"{salt}:{hash_val}"
 
 
 def create_access_token(

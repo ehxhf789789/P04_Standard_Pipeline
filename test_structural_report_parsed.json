@@ -1,0 +1,299 @@
+{
+  "file_id": "test123",
+  "original_filename": "test_structural_report.pdf",
+  "lifecycle_phase": "design",
+  "processed_at": "2026-03-24T04:59:36.291913",
+  "extension": ".pdf",
+  "status": "completed",
+  "document_type": {
+    "type_id": "design_drawing",
+    "label_ko": "설계도면",
+    "label_en": "Design Drawing",
+    "applicable_standards": [
+      "ISO 19650-2",
+      "ISO 7817 (LOIN)",
+      "IDS 1.0"
+    ],
+    "confidence": 0.5
+  },
+  "full_text": "OO Bridge Structural Design Report\nProject: OO Bridge / Phase: Detailed Design\n1. Design Overview\nThis structural calculation report covers the RC box girder bridge.\nConcrete: C40, Reinforcement: SD500, Foundation: Pile foundation\n2. Load Analysis\nDead load: 25.0 kN/m2, Live load: 5.0 kN/m2, Wind: 1.2 kN/m2\n3. Structural Analysis Results\nMaximum moment: 4500 kN-m, Maximum shear: 1200 kN\nDeflection: L/800 = 12.5mm (limit: 15.0mm) - OK\n",
+  "sections": [
+    {
+      "title": "OO Bridge Structural Design Report",
+      "page": 1,
+      "font_size": 16.0
+    }
+  ],
+  "tables": [],
+  "metadata": {
+    "page_count": 1,
+    "title": "",
+    "author": "",
+    "subject": "",
+    "creator": "",
+    "creation_date": ""
+  },
+  "keywords": [
+    {
+      "word": "bridge",
+      "count": 3
+    },
+    {
+      "word": "structural",
+      "count": 3
+    },
+    {
+      "word": "design",
+      "count": 3
+    },
+    {
+      "word": "load",
+      "count": 3
+    },
+    {
+      "word": "report",
+      "count": 2
+    },
+    {
+      "word": "foundation",
+      "count": 2
+    },
+    {
+      "word": "analysis",
+      "count": 2
+    },
+    {
+      "word": "maximum",
+      "count": 2
+    },
+    {
+      "word": "project",
+      "count": 1
+    },
+    {
+      "word": "phase",
+      "count": 1
+    },
+    {
+      "word": "detailed",
+      "count": 1
+    },
+    {
+      "word": "overview",
+      "count": 1
+    },
+    {
+      "word": "calculation",
+      "count": 1
+    },
+    {
+      "word": "covers",
+      "count": 1
+    },
+    {
+      "word": "box",
+      "count": 1
+    },
+    {
+      "word": "girder",
+      "count": 1
+    },
+    {
+      "word": "concrete",
+      "count": 1
+    },
+    {
+      "word": "reinforcement",
+      "count": 1
+    },
+    {
+      "word": "pile",
+      "count": 1
+    },
+    {
+      "word": "dead",
+      "count": 1
+    },
+    {
+      "word": "live",
+      "count": 1
+    },
+    {
+      "word": "wind",
+      "count": 1
+    },
+    {
+      "word": "results",
+      "count": 1
+    },
+    {
+      "word": "moment",
+      "count": 1
+    },
+    {
+      "word": "shear",
+      "count": 1
+    },
+    {
+      "word": "deflection",
+      "count": 1
+    },
+    {
+      "word": "limit",
+      "count": 1
+    }
+  ],
+  "statistics": {
+    "page_count": 1,
+    "table_count": 0,
+    "section_count": 1,
+    "word_count": 66,
+    "char_count": 438,
+    "sentence_count": 5
+  },
+  "standards_applied": [
+    {
+      "code": "ISO 32000",
+      "name": "PDF",
+      "role": "Document format parsing"
+    }
+  ],
+  "ng_items": [
+    {
+      "severity": "NG",
+      "standard": "IDS 1.0",
+      "facet": "Attribute",
+      "description": "Document metadata (title/author)",
+      "note": "Missing title or author metadata",
+      "recommendation_ko": "문서의 제목, 작성자 등 메타데이터를 추가하세요.",
+      "recommendation_en": "Add document metadata such as title, author, etc."
+    },
+    {
+      "severity": "NG",
+      "standard": "ISO 7817-1 (LOIN)",
+      "facet": "Information Level",
+      "description": "Current: LOI Low, Required: LOI Medium for design phase",
+      "note": "Information level does not meet ISO 7817 requirements for design phase",
+      "recommendation_ko": "design 단계에서는 LOI Medium 이상의 정보 수준이 필요합니다. 더 많은 속성/데이터를 추가하세요.",
+      "recommendation_en": "design phase requires LOI Medium+. Add more attributes/data to meet requirements."
+    }
+  ],
+  "standards_pipeline": [
+    {
+      "stage": "Ingest",
+      "standard": "ISO 19650-1/2",
+      "standard_name": "Information Management using BIM",
+      "action": "CDE workflow registration",
+      "details": "File registered in CDE with state 'WIP'. Lifecycle phase: design. Filename parsed for ISO 19650 naming convention compliance.",
+      "input": "test_structural_report.pdf",
+      "output": "CDE state: WIP, Phase: design",
+      "status": "completed"
+    },
+    {
+      "stage": "Validate",
+      "standard": "IDS 1.0",
+      "standard_name": "Information Delivery Specification",
+      "action": "6-facet validation: 2/3 passed",
+      "details": "Checked 3 requirements using IDS 1.0 facets (Entity, Attribute, Property, Classification). 2 passed, 1 issues found.",
+      "input": "Parsed document data",
+      "output": "Compliance: 67%",
+      "status": "warning",
+      "checks": [
+        {
+          "facet": "Attribute",
+          "check": "Document metadata (title/author)",
+          "result": "FAIL",
+          "note": "Missing title or author metadata"
+        },
+        {
+          "facet": "Entity",
+          "check": "Document structure (sections/headings)",
+          "result": "PASS"
+        },
+        {
+          "facet": "Property",
+          "check": "Content sufficiency (>100 chars)",
+          "result": "PASS"
+        }
+      ]
+    },
+    {
+      "stage": "Validate",
+      "standard": "ISO 7817-1 (LOIN)",
+      "standard_name": "Level of Information Need",
+      "action": "Information level assessment: LOI Low",
+      "details": "Minimal content: 66 words, 0 tables. Design phase requires LOI Medium+ per ISO 7817",
+      "input": "Document statistics",
+      "output": "LOI Low",
+      "status": "completed"
+    },
+    {
+      "stage": "Enrich",
+      "standard": "ISO 23386/23387 (bSDD)",
+      "standard_name": "buildingSMART Data Dictionary",
+      "action": "Mapped 0/0 keywords to bSDD classes",
+      "details": "Scanned extracted keywords against bSDD classification database. Found 0 matching construction terms with standard IFC class mappings.",
+      "input": "0 extracted keywords",
+      "output": "0 bSDD class mappings",
+      "status": "completed",
+      "mappings": []
+    },
+    {
+      "stage": "Enrich",
+      "standard": "ISO 12006-2",
+      "standard_name": "Classification Framework",
+      "action": "Construction classification system alignment",
+      "details": "Keywords aligned to Uniclass 2015 / OmniClass classification hierarchy. Document categorized under lifecycle phase: design.",
+      "input": "bSDD mapped terms",
+      "output": "Phase: design, 0 classified terms",
+      "status": "completed"
+    },
+    {
+      "stage": "Transform",
+      "standard": "AI/ML Pipeline",
+      "standard_name": "AI-Ready Data Transformation",
+      "action": "Text chunking, keyword extraction, structure analysis",
+      "details": "Extracted 27 keywords, 66 words, 0 tables, 1 sections.",
+      "input": "Parsed text (438 chars)",
+      "output": "Keywords, sections, tables, statistics",
+      "status": "completed"
+    },
+    {
+      "stage": "AI Lake",
+      "standard": "ISO 19650-1",
+      "standard_name": "Information Container (CDE)",
+      "action": "Store processed data in AI Data Lake",
+      "details": "Parsed data stored as queryable JSON. Full-text indexed for search. Metadata catalogued per ISO 19115 profile.",
+      "input": "All extracted data",
+      "output": "Indexed document in AI Data Lake",
+      "status": "completed"
+    }
+  ],
+  "validation_summary": {
+    "ids_compliance": 67,
+    "ids_checks": [
+      {
+        "facet": "Attribute",
+        "check": "Document metadata (title/author)",
+        "result": "FAIL",
+        "note": "Missing title or author metadata"
+      },
+      {
+        "facet": "Entity",
+        "check": "Document structure (sections/headings)",
+        "result": "PASS"
+      },
+      {
+        "facet": "Property",
+        "check": "Content sufficiency (>100 chars)",
+        "result": "PASS"
+      }
+    ],
+    "loin_level": "LOI Low",
+    "total_checks": 3,
+    "passed_checks": 2
+  },
+  "ng_count": 2,
+  "warning_count": 0,
+  "bsdd_mappings": []
+}

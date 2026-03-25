@@ -2,94 +2,97 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Box, Home, Network, Settings } from "lucide-react";
+import {
+  Home,
+  FolderOpen,
+  PenTool,
+  HardHat,
+  Wrench,
+  Database,
+  ShieldCheck,
+  Search,
+  Settings,
+  Zap,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const navigation = [
-  { name: "Dashboard", href: "/", icon: Home },
-  { name: "Projects", href: "/projects", icon: Box },
-];
-
-const pipelineStages = [
-  { name: "Parse", description: "IFC → Structured Objects" },
-  { name: "Validate", description: "IDS + LOIN Rules" },
-  { name: "Enrich", description: "bSDD Standardization" },
-  { name: "Transform", description: "AI Output Formats" },
-];
+import { useLanguageStore } from "@/store/languageStore";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { t, lang } = useLanguageStore();
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
+
+  if (pathname === "/login") return null;
 
   return (
-    <aside className="flex w-64 flex-col border-r bg-card">
+    <aside className="flex w-56 flex-col border-r bg-white flex-shrink-0">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-          <Network className="h-5 w-5 text-primary-foreground" />
+      <div className="flex h-12 items-center gap-2 border-b px-3">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
+          <Zap className="h-3.5 w-3.5 text-white" />
         </div>
-        <div>
-          <span className="font-semibold">BIM-to-AI</span>
-          <span className="block text-xs text-muted-foreground">Pipeline</span>
+        <div className="leading-none">
+          <span className="font-black text-[13px] tracking-tight">BIM-Vortex</span>
+          <span className="block text-[7px] font-medium text-muted-foreground tracking-widest uppercase">{t("app.subtitle")}</span>
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-4">
-        <div className="space-y-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.name}
-              </Link>
-            );
-          })}
+      <nav className="flex-1 overflow-y-auto py-2 px-1.5 space-y-4">
+        <div className="space-y-0.5">
+          <NavLink href="/" icon={Home} label={t("nav.dashboard")} active={isActive("/")} />
         </div>
 
-        {/* Pipeline Stages (Info Only) */}
-        <div className="pt-6">
-          <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Pipeline Stages
-          </h3>
-          <div className="space-y-1">
-            {pipelineStages.map((item, index) => (
-              <div
-                key={item.name}
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm"
-              >
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">
-                  {index + 1}
-                </span>
-                <div className="min-w-0">
-                  <p className="font-medium text-foreground">{item.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <NavSection label={t("nav.lifecycle")}>
+          <NavLink href="/lifecycle/design" icon={PenTool} label={t("nav.design")} active={isActive("/lifecycle/design")} accent="blue" />
+          <NavLink href="/lifecycle/construction" icon={HardHat} label={t("nav.construction")} active={isActive("/lifecycle/construction")} accent="amber" />
+          <NavLink href="/lifecycle/operation" icon={Wrench} label={t("nav.operation")} active={isActive("/lifecycle/operation")} accent="emerald" />
+          <NavLink href="/projects" icon={FolderOpen} label={lang === "ko" ? "미분류/전체" : "All/Unassigned"} active={isActive("/projects")} />
+        </NavSection>
+
+        <NavSection label={t("nav.data")}>
+          <NavLink href="/ai-lake" icon={Database} label={t("nav.aiLake")} active={isActive("/ai-lake") && !pathname.includes("query")} />
+          <NavLink href="/ai-lake/query" icon={Search} label={t("nav.query")} active={pathname === "/ai-lake/query"} />
+          <NavLink href="/standards" icon={ShieldCheck} label={t("nav.standards")} active={isActive("/standards")} />
+        </NavSection>
       </nav>
 
-      {/* Footer */}
-      <div className="border-t p-4">
-        <Link
-          href="/settings"
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-        >
-          <Settings className="h-4 w-4" />
-          Settings
-        </Link>
+      <div className="border-t p-1.5">
+        <NavLink href="/settings" icon={Settings} label={t("nav.settings")} active={isActive("/settings")} />
       </div>
     </aside>
+  );
+}
+
+function NavSection({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="mb-1 px-2.5 text-[8px] font-bold uppercase tracking-[0.15em] text-muted-foreground/50">{label}</h3>
+      <div className="space-y-0.5">{children}</div>
+    </div>
+  );
+}
+
+function NavLink({ href, icon: Icon, label, active, accent }: {
+  href: string; icon: React.ElementType; label: string; active: boolean; accent?: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[12px] font-medium transition-colors",
+        active ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+      )}
+    >
+      <Icon className={cn("h-3.5 w-3.5 flex-shrink-0",
+        !active && accent === "blue" && "text-blue-500",
+        !active && accent === "amber" && "text-amber-500",
+        !active && accent === "emerald" && "text-emerald-500",
+      )} />
+      <span className="truncate">{label}</span>
+    </Link>
   );
 }

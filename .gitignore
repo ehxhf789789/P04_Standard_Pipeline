@@ -61,3 +61,10 @@ uploads/
 *.tmp
 *.temp
 .cache/
+bim_pipeline.db
+uploads/
+*.pyc
+__pycache__/
+.next/
+node_modules/
+test_*.pdf
